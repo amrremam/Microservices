@@ -1,13 +1,32 @@
 package main
 
-
-
-import "fmt"
-
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+)
 
 
 func main() {
+	http.HandleFunc("/", func(rw http.ResponseWriter, r*http.Request){
+		log.Println("yess its work")
+		d, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(rw, "Ooops", http.StatusBadRequest)
+			// replace this lines of code with http.err
+			//rw.WriteHeader(http.StatusBadRequest)
+			//rw.Write([]byte("Ooops"))
+			return
+			// using return to terminate the app
+		}
+		fmt.Fprintf(rw, "Hello %s\n", d)
+	})
 
-	fmt.Println("yess!")
+	http.HandleFunc("/goodbye", func(http.ResponseWriter, *http.Request){
+		log.Println("bye!")
+	})
+
+	http.ListenAndServe(":9090", nil)
 
 }
