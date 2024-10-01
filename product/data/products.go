@@ -3,19 +3,21 @@ package data
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"io"
 	"time"
 )
 
+
 type Product struct {
-	ID int `json:"ID"`
-	Name string	`json:"Name"`
-	Description string	`json:"Description"`
-	Price float32	`json:"Price"`
-	SKU string	`json:"SKU"`
-	CreatedOn string	`json:"-"`
-	UpdatedON string	`json:"-"`
-	DeletedOn string	`json:"-"`
+	ID 			int 			`json:"ID"`
+	Name 		string			`json:"Name"         validate:"required"`
+	Description string			`json:"Description"`
+	Price 	  	float32			`json:"Price"        validate:"required"`
+	SKU		  	string			`json:"SKU"          validate:"required"`
+	CreatedOn 	string			`json:"-"`
+	UpdatedON 	string			`json:"-"`
+	DeletedOn 	string			`json:"-"`
 }
 
 func (p *Product) FromJSON(r io.Reader) error {
@@ -23,9 +25,13 @@ func (p *Product) FromJSON(r io.Reader) error {
 	return d.Decode(p)
 }
 
+func (p *Product) Validate() error {
+	validate := validator.New()
+	return validate.Struct(p)
+}
+
 // Products is a collection of Product
 type Products []*Product
-
 
 // ToJSON serializes the contents of the collection to JSON
 // NewEncoder provides better performance than json.Unmarshal as it does not
@@ -41,7 +47,6 @@ func GetProducts() Products {
 	return productList
 }
 
-
 func AddProduct(p *Product) {
 	p.ID = getNextID()
 	productList = append(productList, p)
@@ -52,10 +57,8 @@ func UpdateProduct(id int, p*Product) error {
 	if err != nil {
 		return err
 	}
-
 	p.ID = id
 	productList[pos] = p
-
 	return nil
 }
 
